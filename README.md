@@ -179,3 +179,88 @@ public static int[] sortedSquares(int[] nums) {
     }
 ```
 时间复杂度为`O(n)`
+
+### 长度最小的子数组（209）
+#### 题面
+给定一个含有 n 个正整数的数组和一个正整数 s ，找出该数组中满足其和 ≥ s 的长度最小的 连续 子数组，并返回其长度。如果不存在符合条件的子数组，返回 0。
+
+示例：
+输入：s = 7, nums = [2,3,1,2,4,3]
+输出：2
+解释：子数组 [4,3] 是该条件下的长度最小的子数组。
+
+
+提示：
+1 <= target <= 10^9
+1 <= nums.length <= 10^5
+1 <= nums[i] <= 10^5
+
+#### 思路
+##### 暴力
+首先考虑暴力解法。两个for循环，然后不断的寻找符合条件的子序列，时间复杂度很明显是O(n^2)。
+```java
+public static int minSubArrayLen(int target, int[] nums) {
+
+        int result = Integer.MAX_VALUE;
+        int sum = 0;
+        int subLength = 0;
+        for (int i = 0; i < nums.length; i++) {
+            sum = 0;
+            for (int j = i; j < nums.length; j++) {
+                sum += nums[j];
+                if (sum >= target) {
+                    subLength = j - i + 1;
+                    result = result < subLength ? result : subLength;
+                    break;
+
+                }
+            }
+        }
+        return result == Integer.MAX_VALUE ? 0 : result;
+    }
+```
+该解法并不能通过所有样例点，想一下其他方法。
+
+##### 滑动窗口
+滑动窗口其实也是一种双指针方法，但是因为双指针构成的区域比较类似一个窗口，所以叫做滑动窗口。
+在滑动窗口中我们需要关注几个重点：
+
+
+- 窗口内是什么？
+- 如何移动窗口的起始位置？
+- 如何移动窗口的结束位置？
+
+
+窗口就是 满足其和 ≥ s 的长度最小的 连续 子数组。
+窗口的起始位置如何移动：如果当前窗口的值大于等于s了，窗口就要向前移动了（也就是该缩小了）。
+窗口的结束位置如何移动：窗口的结束位置就是遍历数组的指针，也就是for循环里的索引。
+
+```java
+while (sum >= target) {
+                subLength = right - left + 1;
+                result = result < subLength ? result : subLength;
+                sum -= nums[left++];
+            }
+```
+这部分代码就是滑动窗口的精髓，**滑动窗口的精妙之处在于根据当前子序列和大小的情况，不断调节子序列的起始位置。从而将O(n^2)暴力解法降为O(n)。**
+
+具体实现：
+```java
+ public static int minSubArrayLen(int target, int[] nums) {
+        int result = Integer.MAX_VALUE;
+        int sum = 0;//滑动窗口内元素之和
+        int left = 0;//滑动窗口起始位置
+        int subLength = 0;//滑动窗口的长度
+        for (int right = 0; right < nums.length; right++) {
+            sum += nums[right];
+
+            while (sum >= target) {
+                subLength = right - left + 1;
+                result = result < subLength ? result : subLength;
+                sum -= nums[left++];
+            }
+        }
+
+        return result == Integer.MAX_VALUE ? 0 : result;
+    }
+```
