@@ -264,3 +264,152 @@ while (sum >= target) {
         return result == Integer.MAX_VALUE ? 0 : result;
     }
 ```
+### 长度最小的子数组（209）
+#### 题面
+给定一个含有 n 个正整数的数组和一个正整数 s ，找出该数组中满足其和 ≥ s 的长度最小的 连续 子数组，并返回其长度。如果不存在符合条件的子数组，返回 0。
+
+示例：
+输入：s = 7, nums = [2,3,1,2,4,3]
+输出：2
+解释：子数组 [4,3] 是该条件下的长度最小的子数组。
+
+
+提示：
+1 <= target <= 10^9
+1 <= nums.length <= 10^5
+1 <= nums[i] <= 10^5
+
+#### 思路
+##### 暴力
+首先考虑暴力解法。两个for循环，然后不断的寻找符合条件的子序列，时间复杂度很明显是O(n^2)。
+```java
+public static int minSubArrayLen(int target, int[] nums) {
+
+        int result = Integer.MAX_VALUE;
+        int sum = 0;
+        int subLength = 0;
+        for (int i = 0; i < nums.length; i++) {
+            sum = 0;
+            for (int j = i; j < nums.length; j++) {
+                sum += nums[j];
+                if (sum >= target) {
+                    subLength = j - i + 1;
+                    result = result < subLength ? result : subLength;
+                    break;
+
+                }
+            }
+        }
+        return result == Integer.MAX_VALUE ? 0 : result;
+    }
+```
+该解法并不能通过所有样例点，想一下其他方法。
+
+##### 滑动窗口
+滑动窗口其实也是一种双指针方法，但是因为双指针构成的区域比较类似一个窗口，所以叫做滑动窗口。
+在滑动窗口中我们需要关注几个重点：
+
+
+- 窗口内是什么？
+- 如何移动窗口的起始位置？
+- 如何移动窗口的结束位置？
+
+
+窗口就是 满足其和 ≥ s 的长度最小的 连续 子数组。
+窗口的起始位置如何移动：如果当前窗口的值大于等于s了，窗口就要向前移动了（也就是该缩小了）。
+窗口的结束位置如何移动：窗口的结束位置就是遍历数组的指针，也就是for循环里的索引。
+
+```java
+while (sum >= target) {
+                subLength = right - left + 1;
+                result = result < subLength ? result : subLength;
+                sum -= nums[left++];
+            }
+```
+这部分代码就是滑动窗口的精髓，**滑动窗口的精妙之处在于根据当前子序列和大小的情况，不断调节子序列的起始位置。从而将O(n^2)暴力解法降为O(n)。**
+
+具体实现：
+```java
+ public static int minSubArrayLen(int target, int[] nums) {
+        int result = Integer.MAX_VALUE;
+        int sum = 0;//滑动窗口内元素之和
+        int left = 0;//滑动窗口起始位置
+        int subLength = 0;//滑动窗口的长度
+        for (int right = 0; right < nums.length; right++) {
+            sum += nums[right];
+
+            while (sum >= target) {
+                subLength = right - left + 1;
+                result = result < subLength ? result : subLength;
+                sum -= nums[left++];
+            }
+        }
+
+        return result == Integer.MAX_VALUE ? 0 : result;
+    }
+```
+
+### 螺旋矩阵II（59）
+#### 题面
+
+给定一个正整数 n，生成一个包含 1 到 n^2 所有元素，且元素按顺时针顺序螺旋排列的正方形矩阵。
+示例:
+输入: 3
+输出: [ [ 1, 2, 3 ], [ 8, 9, 4 ], [ 7, 6, 5 ] ]
+
+#### 思路
+这道题在写循环的时候可以坚持每条边都**左闭右开**的原则
+
+模拟顺时针画矩阵的过程:
+- 填充上行从左到右
+- 填充右列从上到下
+- 填充下行从右到左
+- 填充左列从下到上
+
+```java
+ public static int[][] generateMatrix(int n) {
+        int[][] ans = new int[n][n];
+        int startx = 0; //每一次循环开始的x位置
+        int starty = 0; //每一次循环开始的y位置
+        int loop = n / 2; //循环的圈数
+        int mid = n / 2; //如果n为奇数则需要填充中间位置
+        int count = 1; //矩阵每一个空格处要填充的元素
+        int offset = 1; //用来控制每一条边的遍历长度
+        int i,j;
+
+        while ((loop--) != 0) {
+            i = startx;
+            j = starty;
+
+            //模拟从左往右填充
+            for (; j < n - offset; j++) {
+                ans[i][j] = count++;
+            }
+            //模拟从上往下填充
+            for (; i < n - offset; i++) {
+                ans[i][j] = count++;
+            }
+            //模拟从右往左填充
+            for (; j > startx ; j--) {
+                ans[i][j] = count++;
+            }
+            //模拟从下往上填充
+            for (; i > starty ; i--) {
+                ans[i][j] = count++;
+            }
+
+            //第二圈开始的时候，起始位置要各自加1， 例如：第一圈起始位置是(0, 0)，第二圈起始位置是(1, 1)
+            startx++;
+            starty++;
+
+            // offset 控制每一圈里每一条边遍历的长度
+            offset += 1;
+        }
+
+        if (n % 2 == 1) {
+            ans[mid][mid] = count;
+        }
+
+        return ans;
+    }
+```
