@@ -413,3 +413,153 @@ while (sum >= target) {
         return ans;
     }
 ```
+
+## 链表
+### 链表基础理论
+#### 链表的类型
+##### 单链表
+链表是一种通过指针串联在一起的线性结构，每一个节点由两部分组成，一个是数据域一个是指针域（存放指向下一个节点的指针），最后一个节点的指针域指向null（空指针的意思）。
+
+链表的入口节点称为链表的头结点也就是head。
+
+
+
+##### 双链表
+
+单链表中的指针域只能指向节点的下一个节点。
+
+双链表：每一个节点有两个指针域，一个指向下一个节点，一个指向上一个节点。
+
+双链表 既可以向前查询也可以向后查询。
+
+
+
+##### 循环链表
+
+
+循环链表，顾名思义，就是链表首尾相连。
+
+循环链表可以用来解决约瑟夫环问题。
+
+
+
+#### 链表的定义
+
+```java
+public class ListNode {
+    // 结点的值
+    int val;
+
+    // 下一个结点
+    ListNode next;
+
+    // 节点的构造函数(无参)
+    public ListNode() {
+    }
+
+    // 节点的构造函数(有一个参数)
+    public ListNode(int val) {
+        this.val = val;
+    }
+
+    // 节点的构造函数(有两个参数)
+    public ListNode(int val, ListNode next) {
+        this.val = val;
+        this.next = next;
+    }}
+```
+
+#### 链表的操作
+##### 删除节点
+删除节点D
+只要将C节点的next指针 指向E节点就可以了。在Java中，有内存回收机制，就不用自己手动释放了。
+
+##### 添加节点
+
+可以看出链表的增添和删除都是O(1)操作，也不会影响到其他节点。
+
+#### 性能分析
+
+
+### 移除链表元素（203）
+
+#### 题面
+题意：删除链表中等于给定值 val 的所有节点。
+
+示例 1： 输入：head = [1,2,6,3,4,5,6], val = 6 输出：[1,2,3,4,5]
+
+示例 2： 输入：head = [], val = 1 输出：[]
+
+示例 3： 输入：head = [7,7,7,7], val = 7 输出：[]
+
+#### 思路
+##### 使用虚拟头节点
+
+可以设置一个虚拟头结点，这样原链表的所有节点就都可以按照统一的方式进行移除了。
+
+```java
+public ListNode removeElements(ListNode head, int val) {
+
+        if (head == null) {
+            return null;
+        }
+
+        ListNode dummy = new ListNode(-1,head);
+        ListNode pre = dummy;
+        ListNode cur = head;
+        while (cur != null) {
+            if(cur.val == val)
+            {
+                pre.next = cur.next;
+            } else{
+                pre = cur;
+            }
+            cur = cur.next;
+        }
+
+        return dummy.next;
+    }
+```
+
+##### 不使用虚拟头节点，直接删除
+
+移除头结点和移除其他节点的操作是不一样的，因为链表的其他节点都是通过前一个节点来移除当前节点，而头结点没有前一个节点。所以头结点如何移除呢，其实只要将头结点向后移动一位就可以，这样就从链表中移除了一个头结点。
+
+```java
+public static ListNode removeElements(ListNode head, int val) {
+
+        while (head != null && head.val == val) {
+            head = head.next;
+        }
+
+        if (head == null) {
+            return null;
+        }
+        
+        ListNode pre = head;
+        ListNode cur = head.next;
+        while (cur != null) {
+            if (cur.val == val) {
+                pre.next = cur.next;
+            } else {
+                pre = cur;
+            }
+            cur = cur.next;
+        }
+
+        return head;
+        
+    }
+```
+
+
+### 设计链表（707）
+题意：
+在链表类中实现这些功能：
+- get(index)：获取链表中第 index 个节点的值。如果索引无效，则返回-1。
+- addAtHead(val)：在链表的第一个元素之前添加一个值为 val 的节点。插入后，新节点将成为链表的第一个节点。
+- addAtTail(val)：将值为 val 的节点追加到链表的最后一个元素。
+- addAtIndex(index,val)：在链表中的第 index 个节点之前添加值为 val  的节点。如果 index 等于链表的长度，则该节点将附加到链表的末尾。
+- 如果 index 大于链表长度，则不会插入节点。如果index小于0，则在头部插入节点。
+- deleteAtIndex(index)：如果索引 index 有效，则删除链表中的第 index 个节点。
+
